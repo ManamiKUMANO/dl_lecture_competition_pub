@@ -33,7 +33,7 @@ def main():
         torch.save(torch.tensor(preprocessed_data_list), os.path.join(data_dir, f"Preprocessed_{dtype}_X.pt"))
 
 
-def load_process_data(idx, X, window_fnc, dtype="train"):  # この辺変数名を変える
+def load_process_data(idx, X, window_fnc, dtype="train"):
     target_data = X[dtype][idx, :, :]
     mean = np.mean(target_data, axis=1, keepdims=True)
     std = np.std(target_data, axis=1, keepdims=True)
