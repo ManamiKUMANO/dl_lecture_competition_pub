@@ -35,7 +35,7 @@ def run(args: DictConfig):
     test_loader = torch.utils.data.DataLoader(
         test_set, shuffle=False, batch_size=args.batch_size, num_workers=args.num_workers
     )
-
+    print(f'num_classes: {train_set.num_classes}, seq_len: {train_set.seq_len}, num_channels: {train_set.num_channels}')
     # ------------------
     #       Model
     # ------------------
@@ -46,7 +46,7 @@ def run(args: DictConfig):
     # ------------------
     #     Optimizer
     # ------------------
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
 
     # ------------------
     #   Start training
@@ -63,6 +63,7 @@ def run(args: DictConfig):
         
         model.train()
         for X, y, subject_idxs in tqdm(train_loader, desc="Train"):
+            X = X.float()
             X, y = X.to(args.device), y.to(args.device)
 
             y_pred = model(X)
@@ -79,6 +80,7 @@ def run(args: DictConfig):
 
         model.eval()
         for X, y, subject_idxs in tqdm(val_loader, desc="Validation"):
+            X = X.float()
             X, y = X.to(args.device), y.to(args.device)
             
             with torch.no_grad():
@@ -106,6 +108,7 @@ def run(args: DictConfig):
     preds = [] 
     model.eval()
     for X, subject_idxs in tqdm(test_loader, desc="Validation"):        
+        X = X.float()        
         preds.append(model(X.to(args.device)).detach().cpu())
         
     preds = torch.cat(preds, dim=0).numpy()
